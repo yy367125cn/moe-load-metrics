@@ -1,7 +1,7 @@
 # 参考文献
 
 > **核验范围（请按此判断可信度）**：
-> - 六条文献的**题名与 arXiv 编号**逐条核对，全部一致；
+> - 八条文献的**题名与 arXiv 编号**逐条核对，全部一致；
 > - 正文引用的 **[1] [2] [3]** 的**结论表述**已与各自摘要比对，未见偏差；
 > - **背景三条（Switch / GShard / Mixtral）仅核编号与题名**，正文未使用其结论。
 >
@@ -41,6 +41,21 @@ https://arxiv.org/abs/2412.19437
 > 见 `REPRODUCE.md` 第 3 步与 `README.md` 第六节。
 >
 > **本文不是提出该方法，而是测量"用什么指标评价它"。**
+
+
+**[4]** *DeepSeek-V4: Towards Highly Efficient Million-Token Context Intelligence*，arXiv:2606.19348
+https://arxiv.org/abs/2606.19348
+
+> **与本工作的关系**：本方法的骨架（expert-wise bias + 按负载符号更新）在 V4 中保留，
+> 但负载均衡已改为「aux-loss-free + 少量 sequence-wise balance loss」的组合，
+> 且 affinity 激活由 Sigmoid 改为 Sqrt(Softplus)。
+> **本文测量的是纯 aux-loss-free 模式，未覆盖该变体。**
+
+**[5]** *DeepSeek-V4.1-Flash: Pushing the Limits of KV Cache Compression*，arXiv:2609.19969
+https://arxiv.org/abs/2609.19969
+
+> **与本工作的关系**：多模态下按模态分别维护 correction bias（本方法的直接延伸）。
+> **本文未覆盖该变体。**
 
 ## 其它背景（正文未直接引用，仅供定位）
 

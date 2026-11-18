@@ -105,10 +105,6 @@ We copied the same ckpt twice, added 0.2 to the router bias in one copy and left
 
 ![Paired experiment](figures/fig2_pair.png)
 
-*Figure 2 — Paired experiment. A1/A2 (bias = 0.2, two independent runs) almost coincide;
-B1 (bias = 0) diverges at E5–E7. In-figure labels are in Chinese: the y-axis reads “专家负载份额”
-(expert load share) and the legend lists each run together with its cv.*
-
 **This is the hardest piece of evidence in this document**: the two groups start from an identical point, the only difference is those 8 bias numbers,
 and yet L1 amplifies the difference 120×, while cv amplifies the difference only 19× (an absolute change of 0.0056, 1.4% relative).
 
@@ -149,9 +145,6 @@ Under the `sber` mode, the reorder at the end of the session permutes the array 
 
 ![Rotation](figures/fig3_rotation.png)
 
-*Figure 3 — First 400 steps: cv rises from 0.3093 to 0.3432 (+11%) while the load ordering is
-completely reshuffled (L1 = 0.30). In-figure title: “图 3 前 400 步：cv +11%，但负载排序彻底改变（L1=0.30)”.*
-
 **An 11% change in cv corresponds to L1 0.30, and a 1% change to L1 0.008 — there is no stable proportional relationship between them.**
 (Dividing the absolute change by the repeat range of cv, 4e-4: the 11% stretch is **85×**, the 1% stretch **8×**; both stretches exceed the noise.)
 
@@ -170,10 +163,6 @@ completely reshuffled (L1 = 0.30). In-figure title: “图 3 前 400 步：cv +1
 | ~~cv ±20% (2026-11-15)~~ | **across runs** / ckpt not fixed | — | **±20%** (not to be placed alongside this table) |
 
 ![Noise ruler](figures/fig1_noise_scale.png)
-
-*Figure 1 — The noise ruler. Five runs from one fixed ckpt collapse onto a single line; runs from
-another ckpt (red) sit far away (L1 = 0.1025). In-figure labels are in Chinese: the y-axis reads
-“专家负载份额” (expert load share).*
 
 **⚠️ The provenance of 0.1025 (this must be stated)**:
 it comes from `L1(rep5_rep1[130 steps], phase_pt130_a[128 steps])` — **the two windows differ by 2 steps**,
@@ -287,6 +276,7 @@ This document does **not** claim that "some universal intervention strength exis
 | Item | Note |
 |---|---|
 | Scale | 1.2B / 8 experts / top_k=2 |
+| **Coverage of method variants** | We measure the **pure** aux-loss-free regime of the V3 era. From V4 onward it became "aux-loss-free + a light sequence-wise balance loss" (arXiv:2606.19348), and V4.1 maintains per-modality correction biases (arXiv:2609.19969) — **neither variant is measured here** |
 | Data | A single corpus (56.35 M tokens); the long-training run actually consumed **53.54 M tokens** (two sessions added together) |
 | Model extrapolation | **Larger models / more experts not verified** |
 | L1 of a ckpt switch | **N=1** |
@@ -309,7 +299,7 @@ is in [AI-COLLABORATION.md](AI-COLLABORATION.md).**
 
 ### 9.2 Citation verification
 
-`REFERENCES.md` states the **scope of verification**: the titles and identifiers of all six references
+`REFERENCES.md` states the **scope of verification**: the titles and identifiers of all eight references
 were checked; for the three actually cited in the text, the wording of the claims was compared against
 the respective abstracts; the three background entries were checked for title and identifier only,
 and their conclusions are not used here.
@@ -324,4 +314,3 @@ If you find one, please open an issue — that is better than letting it propaga
 > **cv measures "how concentrated", L1 measures "who gets it".
 > And every training run is a different ckpt — the difference from switching ckpts (0.10)
 > is larger than the intervention effect you want to measure (0.06).**
-
