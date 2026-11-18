@@ -17,7 +17,7 @@ MoE training papers commonly argue that load balancing is working well by citing
 **coefficient of variation (cv) of expert load**.
 We ran three controlled experiments on a 1.2B / 8-expert / top_k=2 model and observed:
 
-1. **Under a single intervention, the change in cv is not proportional to the change in L1** — in the paired experiment cv differs by only 1.5%
+1. **Under a single intervention, the change in cv is not proportional to the change in L1** — in the paired experiment cv differs by only 1.4%
    (~19× its own noise), while L1 differs by 0.0599 (~120× the difference between two repeats);
    in the long run, cv changes by 11% yet corresponds to L1 0.30, and a 1% change corresponds to L1 0.008 — **there is no stable ratio**
 2. **cv is a scalar: it compresses away the shape of the distribution** — `abN3_r2_s1` has cv **0.3555** and a max/min ratio of **2.50**;
@@ -72,7 +72,20 @@ L1(a, b) = sum(|a[i] - b[i]| for i in range(E))  # distance between two share di
 
 ## 2. Three Pieces of Evidence
 
-### 2.1 Paired: one intervention moves cv by 1.5% but moves L1 by 120× the noise
+### Platforms
+
+| Platform | Accelerator | Software stack | Platform property relevant to this work |
+|---|---|---|---|
+| AtomGit | Ascend 910B4 (32 GB HBM) | PyTorch 2.9.0 + torch_npu 2.9.0, CANN 8.5.0 | run-to-run nondeterminism of 1e-4~6e-4 |
+| Baidu AI Studio | Iluvatar BI-V150S (32 GB) | PyTorch 2.4.1 + corex, IX-ML 4.3.8 | **bit-identical run-to-run**; **fp64 unavailable (silently returns 0)** |
+
+> These two properties directly support two claims in this document:
+> ① **the noise floor is a platform property** → signal-to-noise ratios are not comparable across platforms (see §3);
+> ② Baidu's fp64 silently returning 0 → `RouteStats` switched to int64/fp32 counters (see PITFALLS item 7).
+
+Measured compute (2048×2048 matmul, not nameplate): Ascend bf16 207.9 TFLOPS; BI-V150S bf16 92.6 TFLOPS.
+
+### 2.1 Paired: one intervention moves cv by 1.4% but moves L1 by 120× the noise
 
 > **Data date**: 2026-11-17 (Ascend) | **Conditions**: fixed ckpt (one file, copied twice) | single platform.
 > Raw cards in `data/session_cards/card_pair2*`.
@@ -81,14 +94,19 @@ We copied the same ckpt twice, added 0.2 to the router bias in one copy and left
 
 | | L1 | cv |
 |---|---|---|
-| intervention vs no intervention | **0.0599** | 0.3897 vs 0.3955 (1.5% apart) |
-| within-group noise | **0.0005** (difference between two independent runs with the bias) | range 0.0004 |
-| **signal-to-noise ratio** (effect ÷ difference between two repeats) | **120×** (L1: 0.0599 ÷ 0.0005) | **~19×** (cv: 0.0056 ÷ 0.0003) |
+| intervention vs no intervention | **0.0599** | 0.3899 vs 0.3955 (0.0056 apart, 1.4% relative) |
+| **noise of this group** (A1 vs A2, two independent runs) | **0.0005** | **0.0003** |
+| reference: another group's 5 repeats | 0.0001 ~ 0.0006 | range 0.0004 (that group's cv ≈ 0.205) |
+| **signal-to-noise ratio** (effect ÷ this group's own noise) | **120×** (0.0599 ÷ 0.0005) | **~19×** (0.0056 ÷ 0.0003) |
+
+> **On the denominators**: the within-group noise for both L1 and cv is taken from
+> **this group's own two repeats** (A1 vs A2), not borrowed from the other group
+> (cv ≈ 0.205) whose range is 0.0004 — the two groups sit at different cv levels.
 
 ![Paired experiment](figures/fig2_pair.png)
 
 **This is the hardest piece of evidence in this document**: the two groups start from an identical point, the only difference is those 8 bias numbers,
-and yet L1 amplifies the difference 120×, while cv amplifies the difference only 19×, and the absolute change in cv is just 1.5%.
+and yet L1 amplifies the difference 120×, while cv amplifies the difference only 19× (an absolute change of 0.0056, 1.4% relative).
 
 ### 2.2 Dose curve: an interior optimum exists, and "overshoot" has a measured point
 
@@ -295,3 +313,4 @@ If you find one, please open an issue — that is better than letting it propaga
 > **cv measures "how concentrated", L1 measures "who gets it".
 > And every training run is a different ckpt — the difference from switching ckpts (0.10)
 > is larger than the intervention effect you want to measure (0.06).**
+
