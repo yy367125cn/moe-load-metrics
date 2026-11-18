@@ -33,7 +33,7 @@ MoE 训练里常用「专家负载的变异系数（cv）」论证负载均衡�
 ```
 README.md              本文
 REPRODUCE.md           复现指南（三条硬条件 + 最小步骤）
-PITFALLS.md            我们踩过的坑（12 条）
+PITFALLS.md            我们踩过的坑（13 条）
 metrics.py             cv / L1 的最小实现，可直接跑
 make_figures.py        复现三张图
 check_pair.py          配对实验的事前/事后检查（本包主工具）

@@ -32,7 +32,7 @@ def fig_rotation(data, outdir, plt):
     colors = ["#888", "#1f77b4", "#d62728"]
     for i, k in enumerate(keys):
         ax.plot(x, d[k], marker=markers[i % 3], color=colors[i % 3],
-                label="%s  (cv=%.4f)" % (k, _cv(d[k])), linewidth=1.6)
+                label=k, linewidth=1.6)
     ax.set_xticks(x)
     ax.set_xticklabels(["E%d" % i for i in x])
     ax.set_ylabel("负载份额")
@@ -111,7 +111,7 @@ def fig_pair(data, outdir, plt):
                         ("B1", "#1f77b4"), ("B2", "#aec7e8")):
         if d.get(name):
             ax.plot(x, d[name], marker="o", color=color, linewidth=1.5,
-                    label="%s (cv=%.4f)" % (name, _cv(d[name])))
+                    label=name)
     ax.set_xticks(x)
     ax.set_xticklabels(["E%d" % i for i in x])
     ax.set_ylabel("负载份额")

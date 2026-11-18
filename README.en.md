@@ -37,7 +37,7 @@ but because "every training run is a different ckpt". And once the ckpt is fixed
 ```
 README.md              this document
 REPRODUCE.md           reproduction guide (three hard conditions + minimal steps)
-PITFALLS.md            the pitfalls we ran into (12 items)
+PITFALLS.md            the pitfalls we ran into (13 items)
 metrics.py             minimal implementation of cv / L1, runnable as is
 make_figures.py        reproduces the three figures
 check_pair.py          pre/post check for paired experiments (main tool of this package)
