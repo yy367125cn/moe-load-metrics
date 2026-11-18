@@ -27,7 +27,8 @@ We ran three controlled experiments on a 1.2B / 8-expert / top_k=2 model and obs
    (intervention effect 0.0599, same-ckpt noise on the order of 1e-4)
 
 **Conclusion: comparing routing metrics across runs is unreliable, and mainly not because "training is stochastic",
-but because "every training run is a different ckpt". And once the ckpt is fixed, cv is still blind.**
+but because "every training run is a different ckpt". And once the ckpt is fixed, cv still cannot tell you which expert gets the load
+— it is invariant to permuting the experts.**
 
 ---
 
@@ -77,11 +78,21 @@ L1(a, b) = sum(|a[i] - b[i]| for i in range(E))  # distance between two share di
 | Platform | Accelerator | Software stack | Platform property relevant to this work |
 |---|---|---|---|
 | AtomGit | Ascend 910B4 (32 GB HBM) | PyTorch 2.9.0 + torch_npu 2.9.0, CANN 8.5.0 | run-to-run nondeterminism of 1e-4~6e-4 |
-| Baidu AI Studio | Iluvatar BI-V150S (32 GB) | PyTorch 2.4.1 + corex, IX-ML 4.3.8 | **bit-identical run-to-run**; **fp64 unavailable (silently returns 0)** |
+| Baidu AI Studio | Iluvatar BI-V150S (32 GB) | PyTorch 2.4.1 + corex, IX-ML 4.3.8 | **bit-identical run-to-run**; fp64 statistics read 0 (see note ①) |
 
 > These two properties directly support two claims in this document:
 > ① **the noise floor is a platform property** → signal-to-noise ratios are not comparable across platforms (see §3);
-> ② Baidu's fp64 silently returning 0 → `RouteStats` switched to int64/fp32 counters (see PITFALLS item 7).
+> ② On the Baidu side, fp64 statistics read 0 → `RouteStats` now uses int64/float32 counters
+>    (see note ① and PITFALLS item 7).
+
+> **Note ① (an observation, not a claim about the platform)**
+> In the configuration given in this repository, computing load statistics with `torch.float64`
+> returned 0 consistently and raised no exception. **We did not localise the root cause** —
+> it may come from the environment, the driver, a library version, or from how this repository uses it.
+> **We make no assertion about the platform on this basis**; open an issue if you want the details or a minimal case.
+>
+> **This does not affect any conclusion in this document**: `RouteStats` now uses `int64`/`float32` counters,
+> and every metric **avoids the fp64 path entirely** (see PITFALLS item 7).
 
 Measured compute (2048×2048 matmul, not nameplate): Ascend bf16 207.9 TFLOPS; BI-V150S bf16 92.6 TFLOPS.
 
@@ -133,6 +144,11 @@ We scanned gamma on the same ckpt (96 steps each):
 > Raw cards in `card_ag_long_s1/s2`.
 
 **Experimental conditions (required for reproduction)**: `router_mode=none`.
+
+> **Note ② (data provenance)**: in this section, the 8-dimensional expert-load array for `step0`
+> (used to compute L1 = 0.3009) exists **only** in `data_for_figures.json` and has
+> **no corresponding session card**; it is aggregate-level data. Verify against that file.
+> Every other dataset in this document has its card. **This is the only place where one level of provenance is missing.**
 The `none` mode does not call `reorder_experts`, so `expert_load` keeps the **original index order**.
 Under the `sber` mode, the reorder at the end of the session permutes the array in descending load order — **the phenomenon then cannot be observed directly**.
 
