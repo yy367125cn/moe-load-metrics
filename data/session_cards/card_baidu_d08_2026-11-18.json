@@ -1,0 +1,127 @@
+{
+ "session_id": "2026-11-18T03:59:59",
+ "start_step": 130,
+ "end_step": 226,
+ "wall_clock_sec": 948.7,
+ "train_sec": 929.7,
+ "prep_sec": 24.4,
+ "prep_ratio": 0.0256,
+ "effective_tokens": 6291456,
+ "tokens_per_sec": 6767,
+ "loss_start": 8.8783,
+ "loss_end": 8.8797,
+ "loss_ema": 8.9482,
+ "ce_loss_end": 8.8797,
+ "logit_std_first": 2.335,
+ "logit_std_last": 2.253,
+ "router_logit_std_first": 0.7103,
+ "router_logit_std_last": 0.7134,
+ "bias_abs_mean": 0.800781,
+ "bias_abs_max": 0.800781,
+ "init_scale": 0.02,
+ "ce_loss_ema": 8.9482,
+ "aux_alpha": null,
+ "aux_loss_mean_per_layer": null,
+ "aux_loss_end": null,
+ "aux_loss_weighted_mean": null,
+ "grad_norm_mean": 1.809,
+ "grad_norm_max": 4.438,
+ "peak_hbm_card_gb": null,
+ "peak_hbm_estimated_gb": 21.93,
+ "peak_hbm_meminfo_gb": 19.42,
+ "allocator_peak_gb": 18.0,
+ "hbm_reserve_mb_assumed": 2570.0,
+ "host_mem_used_gb": 31.84,
+ "host_mem_start_gb": 32.0,
+ "host_mem_end_gb": 26.171,
+ "host_mem_drift_gb": -5.829,
+ "bias_hash": "3e8b2a03ee1c4858",
+ "expert_fp_head": [
+  [
+   -0.00148773,
+   -0.00140381,
+   -0.01794434,
+   -0.01153564,
+   -0.00171661,
+   0.00157166,
+   0.0078125,
+   0.02441406
+  ],
+  [
+   -0.02844238,
+   0.00897217,
+   0.00964355,
+   0.03686523,
+   -0.03442383,
+   -0.01965332,
+   0.0112915,
+   0.01190186
+  ]
+ ],
+ "router_mode": "sber",
+ "top_k": 2,
+ "seed": 101,
+ "gamma_sber": 0.0,
+ "gamma_step": null,
+ "expert_load": [
+  0.188,
+  0.1681,
+  0.1545,
+  0.1214,
+  0.1056,
+  0.0915,
+  0.091,
+  0.0799
+ ],
+ "expert_load_cv": 0.3229,
+ "expert_load_cv_soft": 0.2695,
+ "router_entropy": 0.9846,
+ "sber_progress_pct": 1.13,
+ "cv_delta_vs_prev_session": 0.0603,
+ "dead_experts": [],
+ "n_dead_experts": 0,
+ "cv_trace": [
+  {
+   "step": 150,
+   "cv": 1.0386,
+   "cv_cum": 0.1321,
+   "dead": 1
+  },
+  {
+   "step": 170,
+   "cv": 1.0386,
+   "cv_cum": 0.1292,
+   "dead": 1
+  },
+  {
+   "step": 190,
+   "cv": 1.0386,
+   "cv_cum": 0.1994,
+   "dead": 1
+  },
+  {
+   "step": 210,
+   "cv": 1.0386,
+   "cv_cum": 0.2715,
+   "dead": 1
+  },
+  {
+   "step": 226,
+   "cv": 1.0386,
+   "cv_cum": 0.3229,
+   "dead": 1
+  }
+ ],
+ "cv_every": 20,
+ "reorder_perm": [
+  1,
+  2,
+  3,
+  7,
+  0,
+  4,
+  6,
+  5
+ ],
+ "device": "cuda"
+}

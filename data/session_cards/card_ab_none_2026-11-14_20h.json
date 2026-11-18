@@ -1,0 +1,266 @@
+{
+ "session_id": "2026-11-14T20:59:41",
+ "start_step": 0,
+ "end_step": 295,
+ "wall_clock_sec": 1999.3,
+ "train_sec": 1915.3,
+ "prep_sec": 18.0,
+ "prep_ratio": 0.0093,
+ "effective_tokens": 19333120,
+ "tokens_per_sec": 10094,
+ "loss_start": 11.3389,
+ "loss_end": 8.9602,
+ "loss_ema": 8.9095,
+ "ce_loss_end": 8.9602,
+ "logit_std_first": 1.011,
+ "logit_std_last": 2.229,
+ "router_logit_std_first": 1.1567,
+ "router_logit_std_last": 1.0403,
+ "bias_abs_mean": 0.0,
+ "bias_abs_max": 0.0,
+ "init_scale": 0.02,
+ "ce_loss_ema": 8.9095,
+ "aux_alpha": null,
+ "aux_loss_mean_per_layer": null,
+ "aux_loss_end": null,
+ "aux_loss_weighted_mean": null,
+ "grad_norm_mean": 2.505,
+ "grad_norm_max": 58.75,
+ "peak_hbm_card_gb": 22.2021484375,
+ "peak_hbm_estimated_gb": 22.2,
+ "peak_hbm_meminfo_gb": 19.69,
+ "allocator_peak_gb": 18.09,
+ "hbm_reserve_mb_assumed": 2570.0,
+ "host_mem_used_gb": 6.83,
+ "host_mem_start_gb": 4.739,
+ "host_mem_end_gb": 8.0,
+ "host_mem_drift_gb": 3.261,
+ "bias_hash": "d54f02b97ed5bc2a",
+ "expert_fp_head": [
+  [
+   0.00013447,
+   0.03979492,
+   0.00466919,
+   0.02294922,
+   -0.00674438,
+   0.02844238,
+   -0.00144196,
+   -0.00878906
+  ],
+  [
+   0.00436401,
+   -0.00570679,
+   0.01348877,
+   -0.02832031,
+   0.00726318,
+   0.001091,
+   -0.015625,
+   -0.03100586
+  ]
+ ],
+ "router_mode": "none",
+ "top_k": 2,
+ "seed": 101,
+ "gamma_sber": null,
+ "gamma_step": null,
+ "expert_load": [
+  0.0583,
+  0.1569,
+  0.1271,
+  0.1398,
+  0.0726,
+  0.0736,
+  0.1957,
+  0.176
+ ],
+ "expert_load_cv": 0.4133,
+ "sber_progress_pct": 1.48,
+ "cv_delta_vs_prev_session": null,
+ "dead_experts": [],
+ "n_dead_experts": 0,
+ "cv_trace": [
+  {
+   "step": 10,
+   "cv": 0.2915,
+   "cv_cum": 0.2915,
+   "dead": 0
+  },
+  {
+   "step": 20,
+   "cv": 0.3618,
+   "cv_cum": 0.313,
+   "dead": 0
+  },
+  {
+   "step": 30,
+   "cv": 0.4045,
+   "cv_cum": 0.3342,
+   "dead": 0
+  },
+  {
+   "step": 40,
+   "cv": 0.4254,
+   "cv_cum": 0.3533,
+   "dead": 0
+  },
+  {
+   "step": 50,
+   "cv": 0.432,
+   "cv_cum": 0.366,
+   "dead": 0
+  },
+  {
+   "step": 60,
+   "cv": 0.432,
+   "cv_cum": 0.3754,
+   "dead": 0
+  },
+  {
+   "step": 70,
+   "cv": 0.432,
+   "cv_cum": 0.3826,
+   "dead": 0
+  },
+  {
+   "step": 80,
+   "cv": 0.432,
+   "cv_cum": 0.3882,
+   "dead": 0
+  },
+  {
+   "step": 90,
+   "cv": 0.4011,
+   "cv_cum": 0.3889,
+   "dead": 0
+  },
+  {
+   "step": 100,
+   "cv": 0.3894,
+   "cv_cum": 0.3882,
+   "dead": 0
+  },
+  {
+   "step": 110,
+   "cv": 0.3932,
+   "cv_cum": 0.3882,
+   "dead": 0
+  },
+  {
+   "step": 120,
+   "cv": 0.432,
+   "cv_cum": 0.3917,
+   "dead": 0
+  },
+  {
+   "step": 130,
+   "cv": 0.4094,
+   "cv_cum": 0.3929,
+   "dead": 0
+  },
+  {
+   "step": 140,
+   "cv": 0.4005,
+   "cv_cum": 0.3932,
+   "dead": 0
+  },
+  {
+   "step": 150,
+   "cv": 0.432,
+   "cv_cum": 0.3957,
+   "dead": 0
+  },
+  {
+   "step": 160,
+   "cv": 0.432,
+   "cv_cum": 0.3979,
+   "dead": 0
+  },
+  {
+   "step": 170,
+   "cv": 0.432,
+   "cv_cum": 0.3999,
+   "dead": 0
+  },
+  {
+   "step": 180,
+   "cv": 0.432,
+   "cv_cum": 0.4016,
+   "dead": 0
+  },
+  {
+   "step": 190,
+   "cv": 0.432,
+   "cv_cum": 0.4032,
+   "dead": 0
+  },
+  {
+   "step": 200,
+   "cv": 0.432,
+   "cv_cum": 0.4046,
+   "dead": 0
+  },
+  {
+   "step": 210,
+   "cv": 0.432,
+   "cv_cum": 0.4058,
+   "dead": 0
+  },
+  {
+   "step": 220,
+   "cv": 0.432,
+   "cv_cum": 0.407,
+   "dead": 0
+  },
+  {
+   "step": 230,
+   "cv": 0.432,
+   "cv_cum": 0.4081,
+   "dead": 0
+  },
+  {
+   "step": 240,
+   "cv": 0.432,
+   "cv_cum": 0.409,
+   "dead": 0
+  },
+  {
+   "step": 250,
+   "cv": 0.432,
+   "cv_cum": 0.4099,
+   "dead": 0
+  },
+  {
+   "step": 260,
+   "cv": 0.432,
+   "cv_cum": 0.4108,
+   "dead": 0
+  },
+  {
+   "step": 270,
+   "cv": 0.432,
+   "cv_cum": 0.4116,
+   "dead": 0
+  },
+  {
+   "step": 280,
+   "cv": 0.432,
+   "cv_cum": 0.4123,
+   "dead": 0
+  },
+  {
+   "step": 290,
+   "cv": 0.432,
+   "cv_cum": 0.4129,
+   "dead": 0
+  },
+  {
+   "step": 295,
+   "cv": 0.432,
+   "cv_cum": 0.4133,
+   "dead": 0
+  }
+ ],
+ "cv_every": 10,
+ "reorder_perm": null,
+ "device": "npu"
+}

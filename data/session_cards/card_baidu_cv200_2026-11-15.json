@@ -1,0 +1,148 @@
+{
+ "session_id": "2026-11-15T12:09:22",
+ "start_step": 0,
+ "end_step": 200,
+ "wall_clock_sec": 1886.6,
+ "train_sec": 1860.7,
+ "prep_sec": 16.1,
+ "prep_ratio": 0.0086,
+ "effective_tokens": 13107200,
+ "tokens_per_sec": 7044,
+ "loss_start": 11.3318,
+ "loss_end": 9.2526,
+ "loss_ema": 8.9905,
+ "ce_loss_end": 9.2526,
+ "logit_std_first": 1.015,
+ "logit_std_last": 2.442,
+ "router_logit_std_first": 0.7228,
+ "router_logit_std_last": 0.9597,
+ "bias_abs_mean": 0.0,
+ "bias_abs_max": 0.0,
+ "init_scale": 0.02,
+ "ce_loss_ema": 8.9905,
+ "aux_alpha": null,
+ "aux_loss_mean_per_layer": null,
+ "aux_loss_end": null,
+ "aux_loss_weighted_mean": null,
+ "grad_norm_mean": 2.597,
+ "grad_norm_max": 29.5,
+ "peak_hbm_card_gb": null,
+ "peak_hbm_estimated_gb": 22.58,
+ "peak_hbm_meminfo_gb": 20.07,
+ "allocator_peak_gb": 17.9,
+ "hbm_reserve_mb_assumed": 2570.0,
+ "host_mem_used_gb": 23.28,
+ "host_mem_start_gb": 16.584,
+ "host_mem_end_gb": 23.303,
+ "host_mem_drift_gb": 6.719,
+ "bias_hash": "d54f02b97ed5bc2a",
+ "expert_fp_head": [
+  [
+   0.00205994,
+   -0.00939941,
+   0.00817871,
+   -0.01098633,
+   -0.02062988,
+   -0.02600098,
+   0.01574707,
+   -0.02832031
+  ],
+  [
+   0.00860596,
+   0.0030365,
+   0.00358582,
+   -0.01647949,
+   0.01867676,
+   -0.03857422,
+   0.01782227,
+   0.04052734
+  ]
+ ],
+ "router_mode": "none",
+ "top_k": 2,
+ "seed": 101,
+ "gamma_sber": null,
+ "gamma_step": null,
+ "expert_load": [
+  0.1082,
+  0.1909,
+  0.1596,
+  0.0934,
+  0.0727,
+  0.0928,
+  0.1649,
+  0.1175
+ ],
+ "expert_load_cv": 0.3346,
+ "expert_load_cv_soft": 0.1712,
+ "router_entropy": 0.9939,
+ "sber_progress_pct": 1.0,
+ "cv_delta_vs_prev_session": null,
+ "dead_experts": [],
+ "n_dead_experts": 0,
+ "cv_trace": [
+  {
+   "step": 20,
+   "cv": 0.3021,
+   "cv_cum": 0.3021,
+   "dead": 0
+  },
+  {
+   "step": 40,
+   "cv": 0.3701,
+   "cv_cum": 0.3215,
+   "dead": 0
+  },
+  {
+   "step": 60,
+   "cv": 0.3582,
+   "cv_cum": 0.3257,
+   "dead": 0
+  },
+  {
+   "step": 80,
+   "cv": 0.3499,
+   "cv_cum": 0.3288,
+   "dead": 0
+  },
+  {
+   "step": 100,
+   "cv": 0.3499,
+   "cv_cum": 0.3317,
+   "dead": 0
+  },
+  {
+   "step": 120,
+   "cv": 0.3499,
+   "cv_cum": 0.3339,
+   "dead": 0
+  },
+  {
+   "step": 140,
+   "cv": 0.3499,
+   "cv_cum": 0.3358,
+   "dead": 0
+  },
+  {
+   "step": 160,
+   "cv": 0.3499,
+   "cv_cum": 0.3372,
+   "dead": 0
+  },
+  {
+   "step": 180,
+   "cv": 0.3499,
+   "cv_cum": 0.3384,
+   "dead": 0
+  },
+  {
+   "step": 200,
+   "cv": 0.3054,
+   "cv_cum": 0.3346,
+   "dead": 0
+  }
+ ],
+ "cv_every": 20,
+ "reorder_perm": null,
+ "device": "cuda"
+}
