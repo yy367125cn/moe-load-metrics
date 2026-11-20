@@ -112,10 +112,22 @@ def fig_pair(data, outdir, plt):
         if d.get(name):
             ax.plot(x, d[name], marker="o", color=color, linewidth=1.5,
                     label=name)
+    # 旧值（未还原坐标系）用虚线做对照 —— 让读者看到"修正了什么"
+    a1r, b1r = d.get("A1_raw"), d.get("B1_raw")
+    if a1r and b1r:
+        ax.plot(x, a1r, "--", color="#d62728", alpha=0.35, linewidth=1.2,
+                label="A1, before permutation undo")
+        ax.plot(x, b1r, "--", color="#1f77b4", alpha=0.35, linewidth=1.2,
+                label="B1, before permutation undo")
     ax.set_xticks(x)
     ax.set_xticklabels(["E%d" % i for i in x])
     ax.set_ylabel("负载份额")
     ax.set_title("图 2  配对实验：组内两次几乎重合，组间明显分开")
+    if a1r and b1r:
+        ax.text(0.5, -0.15,
+                "Solid: after undoing reorder_perm (L1(A,B)=0.1077).  "
+                "Dashed: the raw stored order (L1=0.0599), shown only to make the correction visible.",
+                transform=ax.transAxes, ha="center", fontsize=7.5, color="#555")
     ax.legend(fontsize=9)
     ax.grid(alpha=0.3)
     fig.tight_layout()

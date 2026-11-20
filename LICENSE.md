@@ -18,3 +18,4 @@ Copyright (c) 2026 yy367125cn
 
     yy367125cn（2026）。
     moe-load-metrics: MoE 专家负载指标的精度与适用范围。
+    (English: MoE Expert-Load Metrics: A Precision Comparison of cv and L1)

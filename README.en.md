@@ -1,8 +1,12 @@
 # moe-load-metrics
 
-> **This is the English translation.** The Chinese [README.md](README.md) is the authoritative version;
-> where the two disagree, the Chinese version prevails.
-> 本文是英文译本；中文版 [README.md](README.md) 为权威版本，如有不一致以中文版为准。
+> Chinese version: [README.md](README.md)
+
+> **This release (2026-11-20) corrects two previously published numbers:**
+> the `L1` intervention effect **0.0599 → 0.1077**, and the `L1` ckpt-switch difference **0.1025 → 0.2493**.
+> Reason: the old values were computed **without undoing `reorder_perm`**; every `L1` in this document is now
+> computed after restoring the original expert order. The direction of the conclusions is unchanged, and stronger
+> (see notes ③ and ⑤, and `PITFALLS` item 17).
 
 ## MoE Expert-Load Metrics: A Precision Comparison of cv and L1
 
@@ -18,17 +22,16 @@ MoE training papers commonly argue that load balancing is working well by citing
 We ran three controlled experiments on a 1.2B / 8-expert / top_k=2 model and observed:
 
 1. **Under a single intervention, the change in cv is not proportional to the change in L1** — in the paired experiment cv differs by only 1.4%
-   (~19× its own noise), while L1 differs by 0.0599 (~120× the difference between two repeats);
-   in the long run, cv changes by 11% yet corresponds to L1 0.30, and a 1% change corresponds to L1 0.008 — **there is no stable ratio**
-2. **cv is a scalar: it compresses away the shape of the distribution** — `abN3_r2_s1` has cv **0.3555** and a max/min ratio of **2.50**;
-   `ag_dose_g02` has cv **0.2833** and a max/min ratio of **3.11**.
-   **The one with the lower cv has the larger max/min ratio — the two scalars describe different aspects, and they do not rank the same way.**
-3. **Switch to another ckpt and the load distribution differs by 0.10 (L1)** — larger than any intervention effect we measured
-   (intervention effect 0.0599, same-ckpt noise on the order of 1e-4)
+   (~19× its own noise), while L1 differs by 0.1077 (~215× the difference between two repeats);
+   in the long run, cv changes by 11% yet corresponds to L1 0.30, and a 1% change corresponds to L1 0.016 — **there is no stable ratio**
+2. **cv is a scalar: it compresses away the shape of the distribution** — `abN3_r2_s1` has cv **0.3555** and a load range of **2.50×**;
+   `ag_dose_g02` has cv **0.2833** and a range of **3.11×**.
+   **The one with the lower cv has the larger range — the two scalars describe different aspects, and they do not rank the same way.**
+3. **Switch to another ckpt and the load distribution differs by 0.25 (L1)** — larger than any intervention effect we measured
+   (intervention effect 0.1077, same-ckpt noise on the order of 1e-4)
 
 **Conclusion: comparing routing metrics across runs is unreliable, and mainly not because "training is stochastic",
-but because "every training run is a different ckpt". And once the ckpt is fixed, cv still cannot tell you which expert gets the load
-— it is invariant to permuting the experts.**
+but because "every training run is a different ckpt". And once the ckpt is fixed, cv still cannot reflect who carries the load — **it is completely invariant to reordering the experts**.**
 
 ---
 
@@ -37,15 +40,19 @@ but because "every training run is a different ckpt". And once the ckpt is fixed
 ```
 README.md              this document
 REPRODUCE.md           reproduction guide (three hard conditions + minimal steps)
-PITFALLS.md            the pitfalls we ran into (13 items)
+PITFALLS.md            the pitfalls we ran into (22 items)
 metrics.py             minimal implementation of cv / L1, runnable as is
 make_figures.py        reproduces the three figures
-check_pair.py          pre/post check for paired experiments (main tool of this package)
+check_pair.py          pre/post checks for the paired experiment (the package's main tool)
 README.en.md           English version
 data/                  experimental data (session cards + summary tables)
 figures/               the three figures
 LICENSE.md             CC BY 4.0 (data/text) + MIT (code)
-AI-COLLABORATION.md    AI collaboration statement (who did what, what the AI got wrong)
+AI-COLLABORATION.md    AI-collaboration statement (who did what, which mistakes the AI made)
+PITFALLS.en.md         English version of PITFALLS.md
+REPRODUCE.en.md        English version of REPRODUCE.md
+REFERENCES.en.md       English version of REFERENCES.md
+METRICS-SCOPE.md       supplement: what cv / entropy / top1 / L1 each do and do not see
 ```
 
 > The tree's annotations are translated here; file and directory names are verbatim.
@@ -60,7 +67,7 @@ L1(a, b) = sum(|a[i] - b[i]| for i in range(E))  # distance between two share di
                                                  # precondition: a and b are share vectors summing to 1, range 0~2
 ```
 
-> The formula block above was translated from Chinese for readability; the actual `metrics.py` in this repository has Chinese comments.
+> The actual `metrics.py` in this repository has Chinese comments; the block above is translated for readability.
 
 | Metric | Under permutation | What it reflects | Units |
 |---|---|---|---|
@@ -75,28 +82,27 @@ L1(a, b) = sum(|a[i] - b[i]| for i in range(E))  # distance between two share di
 
 ### Platforms
 
-| Platform | Accelerator | Software stack | Platform property relevant to this work |
+| Platform | Accelerator | Software stack | Platform characteristics relevant here |
 |---|---|---|---|
-| AtomGit | Ascend 910B4 (32 GB HBM) | PyTorch 2.9.0 + torch_npu 2.9.0, CANN 8.5.0 | run-to-run nondeterminism of 1e-4~6e-4 |
-| Baidu AI Studio | Iluvatar BI-V150S (32 GB) | PyTorch 2.4.1 + corex, IX-ML 4.3.8 | **bit-identical run-to-run**; fp64 statistics read 0 (see note ①) |
+| AtomGit | Ascend 910B4 (32 GB HBM) | PyTorch 2.9.0 + torch_npu 2.9.0, CANN 8.5.0 | 1e-4~6e-4 run-to-run non-determinism |
+| Baidu AI Studio | Iluvatar BI-V150S (32 GB) | PyTorch 2.4.1 + corex, IX-ML 4.3.8 | **bit-deterministic**; fp64 statistics are 0 (see note ①) |
 
-> These two properties directly support two claims in this document:
-> ① **the noise floor is a platform property** → signal-to-noise ratios are not comparable across platforms (see §3);
-> ② On the Baidu side, fp64 statistics read 0 → `RouteStats` now uses int64/float32 counters
->    (see note ① and PITFALLS item 7).
+> These two platform properties directly support two claims in this document:
+> ① **the noise floor is a property of the platform** → signal-to-noise ratios are not comparable across platforms (see §3);
+> ② fp64 statistics on Baidu are 0 → `RouteStats` now uses int64/fp32 counters (see note ① and PITFALLS item 7).
 
-> **Note ① (an observation, not a claim about the platform)**
-> In the configuration given in this repository, computing load statistics with `torch.float64`
-> returned 0 consistently and raised no exception. **We did not localise the root cause** —
-> it may come from the environment, the driver, a library version, or from how this repository uses it.
-> **We make no assertion about the platform on this basis**; open an issue if you want the details or a minimal case.
+> **Note ① (a record of what we observed, not a claim about the platform)**
+> Under the platform configuration given in this repository, when we computed load statistics with `torch.float64`
+> the results were always 0 and no exception was raised. **We have not located the root cause** —
+> it may come from the environment, the driver, a library version, or from how this repository uses them.
+> **We make no assertion about the platform on this basis; please open an issue if you need reproduction details or a minimal case.**
 >
-> **This does not affect any conclusion in this document**: `RouteStats` now uses `int64`/`float32` counters,
-> and every metric **avoids the fp64 path entirely** (see PITFALLS item 7).
+> **This does not affect any conclusion in this document**: `RouteStats` has been switched to `int64`/`float32` counters,
+> so all metrics **bypass the fp64 path** (see PITFALLS item 7).
 
-Measured compute (2048×2048 matmul, not nameplate): Ascend bf16 207.9 TFLOPS; BI-V150S bf16 92.6 TFLOPS.
+Measured throughput (2048×2048 matrix multiply, not nominal values): Ascend bf16 207.9 TFLOPS; BI-V150S bf16 92.6 TFLOPS.
 
-### 2.1 Paired: one intervention moves cv by 1.4% but moves L1 by 120× the noise
+### 2.1 Paired: one intervention moves cv by 1.4% but moves L1 by 215× the noise
 
 > **Data date**: 2026-11-17 (Ascend) | **Conditions**: fixed ckpt (one file, copied twice) | single platform.
 > Raw cards in `data/session_cards/card_pair2*`.
@@ -105,19 +111,19 @@ We copied the same ckpt twice, added 0.2 to the router bias in one copy and left
 
 | | L1 | cv |
 |---|---|---|
-| intervention vs no intervention | **0.0599** | 0.3899 vs 0.3955 (0.0056 apart, 1.4% relative) |
-| **noise of this group** (A1 vs A2, two independent runs) | **0.0005** | **0.0003** |
-| reference: another group's 5 repeats | 0.0001 ~ 0.0006 | range 0.0004 (that group's cv ≈ 0.205) |
-| **signal-to-noise ratio** (effect ÷ this group's own noise) | **120×** (0.0599 ÷ 0.0005) | **~19×** (0.0056 ÷ 0.0003) |
+| intervention vs no intervention | **0.1077** | 0.3899 vs 0.3955 (difference 0.0056, i.e. 1.4% relative) |
+| **this group's own noise** (A1 vs A2, two independent runs) | **0.0005** | **0.0003** |
+| reference: another group, 5 repeats | 0.0001 ~ 0.0006 | range 0.0004 (that group's cv≈0.205) |
+| **signal-to-noise ratio** (effect ÷ this group's own noise) | **215×** (0.1077 ÷ 0.0005) | **~19×** (0.0056 ÷ 0.0003) |
 
-> **On the denominators**: the within-group noise for both L1 and cv is taken from
-> **this group's own two repeats** (A1 vs A2), not borrowed from the other group
-> (cv ≈ 0.205) whose range is 0.0004 — the two groups sit at different cv levels.
+> **Note the denominator**: the "within-group noise" of both L1 and cv is taken as **this group's own difference between two repeats**
+> (A1 vs A2); we do not mix in the 0.0004 of the other group (the one with cv≈0.205) — the two differ in cv magnitude, and mixing them would give the wrong ratio.
+
 
 ![Paired experiment](figures/fig2_pair.png)
 
 **This is the hardest piece of evidence in this document**: the two groups start from an identical point, the only difference is those 8 bias numbers,
-and yet L1 amplifies the difference 120×, while cv amplifies the difference only 19× (an absolute change of 0.0056, 1.4% relative).
+and yet L1 amplifies the difference 215×, while cv amplifies it only 19× (a change of 0.0056, i.e. 1.4% relative).
 
 ### 2.2 Dose curve: an interior optimum exists, and "overshoot" has a measured point
 
@@ -134,35 +140,41 @@ We scanned gamma on the same ckpt (96 steps each):
 **Note the 0.8 cell: cv = 0.3229, which is 20.8% worse than no intervention (0.2674).**
 ⇒ **Overshoot is not "the improvement getting weaker"; it is "the intervention itself creating a new imbalance".**
 
-> ⚠️ **Each platform is U-shaped, but the optimal position differs by 4×.**
-> **This does not warrant the claim that "U-shape is a cross-platform property"** — the baselines differ; see Section 5.
-> The two sides also differ in **baseline imbalance** (cv 0.19 vs 0.27), and **this experiment does not disentangle platform from baseline**.
+> ⚠️ **Each of the two platforms is U-shaped, but the optimal positions differ by 4×.**
+> **We cannot conclude from this that "U-shape is a cross-platform regularity"** — the baselines behind the two controls are in different states, see Section 5.
+> The two sides also differ in **baseline imbalance** (cv 0.19 vs 0.27), and **this experiment does not disentangle platform from control**.
 
 ### 2.3 Long training: cv and L1 move in the same direction, but not proportionally
 
-> **Data date**: 2026-11-16 (Ascend, 800 steps) | **Conditions**: two sessions of a single training run (same ckpt chain) | single platform.
+> **Data date**: 2026-11-16 (Ascend, 800 steps) | **Conditions**: two sessions of a single run (same ckpt chain) | single platform.
 > Raw cards in `card_ag_long_s1/s2`.
 
-**Experimental conditions (required for reproduction)**: `router_mode=none`.
+> **Note ② (data provenance)**: the 8-dimensional expert-load array for `step0` in this section (used to compute L1 = 0.3009)
+> survives only in `data_for_figures.json`; **there is no corresponding raw session card**, so it is summary-layer data.
+> Please check against that file; every other datum has a card. **This is the only place in this document where the first-level provenance is missing.**
 
-> **Note ② (data provenance)**: in this section, the 8-dimensional expert-load array for `step0`
-> (used to compute L1 = 0.3009) exists **only** in `data_for_figures.json` and has
-> **no corresponding session card**; it is aggregate-level data. Verify against that file.
-> Every other dataset in this document has its card. **This is the only place where one level of provenance is missing.**
+**Experimental conditions (required for reproduction)**: `router_mode=none`.
 The `none` mode does not call `reorder_experts`, so `expert_load` keeps the **original index order**.
 Under the `sber` mode, the reorder at the end of the session permutes the array in descending load order — **the phenomenon then cannot be observed directly**.
 
-800 training steps (the run consumed 53.54 M tokens):
+800 training steps (this run consumed 53.54 M tokens):
 
 | Interval | cv change | L1 |
 |---|---|---|
 | first 400 steps (step0 → s1) | 0.3093 → 0.3432 (**+11%**) | **0.3009** |
-| last 400 steps (s1 → s2) | 0.3432 → 0.3465 (**+1%**) | 0.0082 |
+| last 400 steps (s1 → s2) | 0.3432 → 0.3465 (**+1%**) | **0.0164**<br>(card value 0.0082, see note ③) |
+
+> **Note ③ (the statistical scope of `s2`)**: `s2` was continued from `s1`, so the `expert_load` in its card is
+> **cumulative over (history + this session)** (408 steps of `s1` + 409 steps of this session), not this session alone.
+> Back-solving with `sess/(base+sess) = 409/817 = 0.501` gives a **true L1 for this session of about 0.0164** (the card value 0.0082 × 2).
+> `s1` was trained from scratch and **has no history**, so its `cv` and `L1` are unaffected.
+>
+> **⇒ The table in this section uses 0.0164 and notes the card's original value. This is the only number in this document that needs a scope correction.**
 
 ![Rotation](figures/fig3_rotation.png)
 
-**An 11% change in cv corresponds to L1 0.30, and a 1% change to L1 0.008 — there is no stable proportional relationship between them.**
-(Dividing the absolute change by the repeat range of cv, 4e-4: the 11% stretch is **85×**, the 1% stretch **8×**; both stretches exceed the noise.)
+**An 11% change in cv corresponds to L1 0.30, and a 1% change to L1 0.016 — there is no stable proportional relationship between them.**
+(Dividing the absolute change by the repeat range of cv, 4e-4: the 11% stretch is **85×**, the 1% stretch **41×**; both stretches exceed the noise.)
 
 ## 3. Precision: The Noise Ruler
 
@@ -175,16 +187,29 @@ Under the `sber` mode, the reorder at the end of the session permutes the array 
 |---|---|---|---|
 | within one ckpt, Ascend 5 repeats | **fixed ckpt** / single platform | 0.0001 ~ 0.0006 | range 0.0004 |
 | within one ckpt, Baidu 2 repeats | **fixed ckpt** / single platform | **0.0000 (bit-identical)** | identical |
-| retrain the baseline once | **across runs** / single platform | **0.1025 (N=1)** | — |
+| retrain the baseline once | **across runs** / single platform | **0.2493 (N=1)<br>0.5638 (N=1, another pair of runs)** | — |
 | ~~cv ±20% (2026-11-15)~~ | **across runs** / ckpt not fixed | — | **±20%** (not to be placed alongside this table) |
 
 ![Noise ruler](figures/fig1_noise_scale.png)
 
-**⚠️ The provenance of 0.1025 (this must be stated)**:
+> **Note ⑤ (where the second number, 0.5638, comes from)**:
+> `L1(card_1118_base_a, card_1118_base_b) = 0.5638`.
+> Both runs are `router_mode=none`, `0→130` steps, same seed and configuration,
+> with `reorder_perm=null` (`none` mode does not reorder, so **no permutation undo is needed**).
+> Both cards are in `data/session_cards/` and can be checked directly.
+>
+> **⚠️ This number says one thing only: two identically configured runs trained from scratch for 130 steps
+> can differ by 0.5638 in load distribution.**
+> **It is an observation about one pair of runs, not a "typical cross-run value".**
+> (Their `cv` values are 0.4671 / 0.3516; 0.4671 is higher than every later base's `cv`,
+> so it should be read as one sample from the tail.)
+
+
+**⚠️ The provenance of 0.2493 (this must be stated)**:
 it comes from `L1(rep5_rep1[130 steps], phase_pt130_a[128 steps])` — **the two windows differ by 2 steps**,
 so strictly speaking it does not satisfy hard condition 2 of REPRODUCE in this package. **The contribution of the window mismatch is estimated from measurements inside the package**: `card_ceTime` (84 steps) / `ce85` (85 steps) / `ce96` (95 steps)
 are three runs on the same baseline with the same seed (all status ok); measured, **a 1-step difference gives L1 ≈ 0.0005 and 10 steps ≈ 0.0024**
-(~2.5e-4/step) ⇒ **2 steps is about 1e-3, i.e. about 1% of 0.1025**.
+(~2.5e-4/step) ⇒ **2 steps is about 1e-3, i.e. about 1% of 0.2493**.
 Estimating more conservatively from the slope over the first 408 steps (0.3009/408 ≈ 7.4e-4/step): 2 steps ≈ **1.5e-3 (1.5%)**.
 
 **⇒ The conclusion is unaffected, but this number should be read as "an estimate containing at most ~1.5% window contamination", and we could not find a same-window pair.**
@@ -192,7 +217,7 @@ Estimating more conservatively from the slope over the first 408 steps (0.3009/4
 **⚠️ Two further points must be stated:**
 1. **The level of reproducibility is a property of the platform**: Ascend has 1e-4~6e-4 of run-to-run noise,
    whereas the same code on Baidu is **bit-deterministic**. The "signal-to-noise ratios" in this document therefore hold only within their own platform and are **not comparable across platforms**.
-2. **"A ckpt switch costs 0.10" was measured on only one pair** (different days, different instances); the direction is consistent but **N=1**.
+2. **"A ckpt switch costs 0.25" was measured on only one pair** (different days, different instances); the direction is consistent but **N=1**.
 
 ---
 
@@ -203,7 +228,7 @@ Estimating more conservatively from the slope over the first 408 steps (0.3009/4
 | Platform | Intervention | cv | ce_ema |
 |---|---|---|---|
 | Ascend | 5 dose levels (0~0.4) | 0.1978 → 0.1125 (**-43%**) | spread **0.0002** (range across the five groups) |
-| Baidu | bias 0 → 0.2 | 0.2674 → 0.2173 (**-19%**) | span 9e-4 across six groups (noise 0) |
+| Baidu | bias 0 → 0.2 | 0.2674 → 0.2173 (**-19%**) | spread across six groups 9e-4 (noise 0) |
 
 **On both platforms there is no measurable association between "load balance" and "language-modelling quality".**
 
@@ -223,9 +248,9 @@ Estimating more conservatively from the slope over the first 408 steps (0.3009/4
 | Ascend | 0.1978 | **0.1125** | 0.1287 | 0.1639 (overshoot already at 0.4) | U-shaped, minimum at 0.1 |
 | Baidu | **0.2674** | 0.2420 | 0.2173 | **0.1456 (0.3229 at 0.8, severe overshoot)** | U-shaped, minimum at 0.4 |
 
-**⚠️ Platform difference and baseline difference cannot be separated**: the baseline imbalance also differs between the two sides (cv 0.19 vs 0.27),
-**and this experiment does not disentangle the two factors.** Factors **partially** ruled out: router logit scale — **the two sides are the same order of magnitude but not equal** (Ascend ~0.79, Baidu ~0.71),
-so the difference cannot be fully attributed to a scale difference.
+**⚠️ Platform difference and baseline difference cannot be separated**: the imbalance of the two controls also differs (cv 0.19 vs 0.27),
+**and this experiment does not disentangle the two factors.** Factors **partly ruled out**: router logit scale — the two sides are of the same order of magnitude but not equal (Ascend ~0.79, Baidu ~0.71),
+**so we cannot attribute the difference entirely to scale, but we also cannot rule out that it contributes.**
 
 **The most we can write is "the optimal gamma depends on the baseline state and must be calibrated per baseline"; we cannot write any quantitative rule.**
 
@@ -249,12 +274,12 @@ https://arxiv.org/abs/2611.15271
 
 That paper runs a set of experiments complementary to ours:
 - **changing the parallelism layout** mid-training leaves **model quality unchanged** but **changes the model itself**
-  (the final prediction difference is about **80% of** that of changing the seed, with **>90% of routing decisions flipped**);
+  (the final prediction difference is about **80%** of that from changing the seed, with **>90% of routing decisions flipped**);
 - the flips concentrate in **near-tie tokens** (boundary samples);
 - the **timing of the switch** matters: switching at 84% of pretraining has almost no effect.
 
 **Relation to this document**: they show "change the parallelism layout → routing changes a lot, quality does not";
-we show "**change the ckpt (same seed / same configuration / same data) → the load distribution differs by 0.10, which is larger than the intervention effect 0.06 we want to measure**".
+we show "**change the ckpt (same seed / same configuration / same data) → the load distribution differs by 0.25, which is larger than the intervention effect 0.11 we want to measure**".
 Both point to the same thing: **routing state is extremely sensitive to training conditions, while task quality is not.**
 
 > This also explains why we insist that "you must lock onto that one specific ckpt file" —
@@ -283,7 +308,7 @@ This document does **not** claim that "some universal intervention strength exis
 2. **The same window length** (not "roughly the same")
 3. **The intervention magnitude is computed on the fly from the current baseline's own load** (not reused from another baseline's value)
 
-> We distilled these three after falling into these traps ourselves. Omit them and reproduction will fail.
+> We distilled these three after stepping in the pits ourselves. Omit them and reproduction will fail.
 
 ---
 
@@ -292,41 +317,39 @@ This document does **not** claim that "some universal intervention strength exis
 | Item | Note |
 |---|---|
 | Scale | 1.2B / 8 experts / top_k=2 |
-| **Coverage of method variants** | We measure the **pure** aux-loss-free regime of the V3 era. From V4 onward it became "aux-loss-free + a light sequence-wise balance loss" (arXiv:2606.19348), and V4.1 maintains per-modality correction biases (arXiv:2609.19969) — **neither variant is measured here** |
-| Data | A single corpus (56.35 M tokens); the long-training run actually consumed **53.54 M tokens** (two sessions added together) |
-| Model extrapolation | **Larger models / more experts not verified** |
-| L1 of a ckpt switch | **N=1** |
-| Mechanism of the optimum | **Undetermined** (logit scale partially ruled out: 0.79 vs 0.71) |
+| **Method-version coverage** | We measure the **pure** aux-loss-free of the V3 era. From V4 on it became "aux-loss-free + a small amount of sequence-wise balance loss" (arXiv:2606.19348), and V4.1 further splits the bias per modality (arXiv:2609.19969) — **neither of these two variants was measured** |
+| Data | A single corpus (56.35 M tokens; the original record reads 5635 in units of 10⁴); the long-training run actually consumed **53.54 M tokens** (original record 5354 in units of 10⁴, the two sessions added together) |
+| Model extrapolation | **larger models / more experts not verified** |
+| L1 of a ckpt switch | **N=1** (0.2493, spanning two days with a 2-step window difference) and **N=1** (0.5638, two identically configured runs)<br>**Two observations are not enough for a "typical cross-run value"** — we only claim that "anywhere from 0.25 to 0.56 is possible" |
+| **Repeats on the same base** | **Not done.** The paired experiment (§2.1, `0.1077`) is a single run.<br>Reason: the ckpt that produced it was destroyed with the instance. **This is an inherent cost of the "ckpts are not persisted" experimental design**, not an oversight |
+| Mechanism of the optimum | **undetermined** (**partly ruled out**: 0.79 vs 0.71, not fully attributed) |
 | Comparability of SNR | Baidu noise 0 / Ascend 1e-4~6e-4, **not comparable across platforms** |
 
 ---
 
-## 9. About This Material
+## 9. About This Material Itself
 
-### 9.1 AI collaboration
+### 9.1 AI Collaboration
 
-The code, experiment execution, analysis and documentation in this repository were produced
-with the assistance of AI systems; humans set direction and gave final review.
-**The full statement — including the 10+ occasions on which the AI was proven wrong during this work —
-is in [AI-COLLABORATION.md](AI-COLLABORATION.md).**
+The code, experiment execution, analysis and writing in this repository were produced with the assistance of AI systems; humans were responsible for direction-setting and final review.
+**The full account (including a record of the AI being proven wrong more than 10 times during this work) is in [AI-COLLABORATION.md](AI-COLLABORATION.md).**
 
-> We disclose the AI's mistakes because **a narrative that never errs is more suspicious
-> than a process that errs and checks itself.**
+> We chose to publish the AI's mistakes because **a narrative that never errs is more suspect than a process that errs and then checks itself.**
 
-### 9.2 Citation verification
+### 9.2 Reference Verification
 
-`REFERENCES.md` states the **scope of verification**: the titles and identifiers of all eight references
-were checked; for the three actually cited in the text, the wording of the claims was compared against
-the respective abstracts; the three background entries were checked for title and identifier only,
-and their conclusions are not used here.
+The top of `REFERENCES.md` states the **scope of verification**: the titles and identifiers of all eight references were checked;
+for the five actually cited in the body ([1]–[5]), the wording of their conclusions was compared against their abstracts;
+the three background references had only their identifiers and titles checked, and their conclusions are not used in the body.
+**Note**: the technical details of [4] V4 and [5] V4.1-Flash (sequence-wise balance loss, Sigmoid→Sqrt(Softplus)) are cited from their abstracts and have not been independently verified.
 
-### 9.3 Corrections welcome
+### 9.3 Corrections Welcome
 
-This is **work in progress; undiscovered errors cannot be ruled out.**
-If you find one, please open an issue — that is better than letting it propagate.
+This repository is **a work in progress, and we do not rule out that undiscovered errors remain**.
+If you find a problem, please open an issue — that is better than letting the error spread.
 
 ## 10. If You Remember Only One Sentence
 
 > **cv measures "how concentrated", L1 measures "who gets it".
-> And every training run is a different ckpt — the difference from switching ckpts (0.10)
-> is larger than the intervention effect you want to measure (0.06).**
+> And every training run is a different ckpt — the difference from switching ckpts (0.25)
+> is larger than the intervention effect you want to measure (0.11).**
