@@ -40,6 +40,22 @@ def l1(a, b):
     return sum(abs(x - y) for x, y in zip(a, b))
 
 
+def _restore(load, perm):
+    """按 reorder_perm 把「降序存储」还原成原始专家顺序。
+
+    sber 模式的卡片里 expert_load 按负载降序存储，直接用存储顺序算 L1 会得到
+    错误的结果（本仓库 v0.1.5 曾因此发布两个错数：0.1025 应为 0.2493、
+    0.0599 应为 0.1077）。perm 为 null 时原样返回。
+    """
+    if not perm:
+        return list(load)
+    if len(perm) != len(load):
+        raise ValueError("perm 长度 %d 与 load 长度 %d 不一致" % (len(perm), len(load)))
+    out = [0.0] * len(load)
+    for i, p in enumerate(perm):
+        out[int(p)] = load[i]
+    return out
+
 def _f(v, default=0.0):
     try:
         return float(v)
@@ -162,9 +178,12 @@ def main():
         ref, ref_name = (rb, rb["file"]) if _f(rb["bias_mean"]) == 0 else (ra, ra["file"])
         other = ra if ref is rb else rb
         probs, _notes = check_one(other, ref, other["file"], ref_name)
-        la, lb = A.get("expert_load") or [], B.get("expert_load") or []
+        la = _restore(A.get("expert_load") or [], A.get("reorder_perm"))
+        lb = _restore(B.get("expert_load") or [], B.get("reorder_perm"))
         if la and lb:
             print("cv : %.4f / %.4f" % (cv(la), cv(lb)))
+            if A.get("reorder_perm") or B.get("reorder_perm"):
+                print("note: 已按 reorder_perm 还原后再算 L1（sber 卡片的 expert_load 是降序存储）")
             print("L1 : %.4f" % l1(la, lb))
         for q in probs:
             print("[FAIL] " + q)

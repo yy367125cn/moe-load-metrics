@@ -156,3 +156,82 @@ and these FAILs are the list of "not comparable".
 
 > **Documents are read by people; scripts are executed by machines.**
 > Writing a pitfall down as a rule is far more useful than writing it as a paragraph.
+
+---
+
+## Before comparing `L1` across cards: undo `reorder_perm` first
+
+**This is the direct cause of the two wrong numbers published in v0.1.5, and the easiest mistake to make in this repository.**
+
+In cards produced by `sber` / `baseline` and similar modes, `expert_load` is stored **sorted by load, descending**,
+and `reorder_perm` records that ordering. Computing `L1` on the stored order does not measure
+"the distance between two allocations" — it measures a distance with expert identity sorted away.
+
+```python
+def restore(load, perm):
+    if not perm:
+        return list(load)
+    out = [0.0] * len(load)
+    for i, p in enumerate(perm):
+        out[int(p)] = load[i]
+    return out
+```
+
+| Quantity | Not restored | Restored |
+|---|---|---|
+| Intervention effect | 0.0599 | **0.1077** |
+| Cross-`ckpt` difference | 0.1025 | **0.2493** |
+
+`check_pair.py` restores automatically since v0.2.0 and prints a `note:` line when it does.
+If you recompute by hand, use the same `restore`.
+
+---
+
+## Reproducing the three new pieces of evidence in this version
+
+### A. Plateau (section 3a)
+
+```bash
+# same seed, three training lengths, everything else identical
+python train.py --data data --out exp/L130 --seed 101 --max-steps 130 --cv-every 20
+python train.py --data data --out exp/L400 --seed 101 --max-steps 400 --cv-every 50
+python train.py --data data --out exp/L800 --seed 101 --max-steps 800 --cv-every 100
+```
+
+**Read `cv_every` before reading `cv_trace`**: `step k` means the window `[k-cv_every+1, k]`.
+**Two traces with different `cv_every` are not comparable just because the `step` numbers match** (see `PITFALLS` 24).
+
+Expected: `1~20` = 0.2427 -> `21~40` overshoot 0.3286 -> `41~60` 0.2800 -> `61~80` 0.2754 -> constant 0.2753 from step 81.
+
+### B. Cross-seed robustness
+
+```bash
+for s in 101 102 103 104 105; do
+  python train.py --data data --out exp/seed$s --seed $s --max-steps 130
+done
+```
+
+Take `L1` between all pairs of the five cards' `expert_load` (10 pairs): expect **0.2752 - 0.4736**, median 0.3620.
+
+### C. Cumulative-scope formula
+
+```bash
+# from one base ckpt, continue training 96 steps in two arms:
+#   arm 1: statistics reset at resume (default)
+#   arm 2: statistics accumulate across the resume (remove the reset line)
+```
+
+Prediction: `cum_expected = (n1*L_base + n2*L_session) / (n1+n2)`;
+measured vs predicted `L1` should be **< 0.005** (0.0003 in this repository).
+
+---
+
+## Checking whether a card is self-consistent (zero cost)
+
+Any card that was trained from scratch, carries a `cv_trace`, and stores cumulative statistics can be checked:
+
+1. back-solve the window distribution from the cumulative `expert_load`;
+2. compute its `cv`;
+3. compare with the `cv` of the same window in `cv_trace`; a difference < 1e-3 means it is self-consistent.
+
+> **Note: self-consistency only shows that the formula/statistical scope is fine; it does not show that training itself was correct — that needs a rerun comparison.**

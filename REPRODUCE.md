@@ -153,3 +153,82 @@ python check_pair.py --a card_A.json --b card_B.json   # 单对检查
 
 > **文档靠人读，脚本靠机器执行。**
 > 把一个坑写成规则，比写成一段话有用得多。
+
+---
+
+## 跨卡比较 `L1` 之前：必须先还原 `reorder_perm`
+
+**这是 v0.1.5 曾发布两个错数的直接原因，也是本仓库最容易犯的一类错。**
+
+`sber` / `baseline` 等模式的卡片里，`expert_load` 存的是**按负载降序排好的数组**，
+`reorder_perm` 记录这个排序。直接按存储顺序算 `L1`，量到的不是「两套分配的距离」，
+而是一个被排序抹掉身份后的距离。
+
+```python
+def restore(load, perm):
+    if not perm:
+        return list(load)
+    out = [0.0] * len(load)
+    for i, p in enumerate(perm):
+        out[int(p)] = load[i]
+    return out
+```
+
+| 量 | 未还原 | 还原后 |
+|---|---|---|
+| 干预效应 | 0.0599 | **0.1077** |
+| 跨 `ckpt` 差异 | 0.1025 | **0.2493** |
+
+`check_pair.py` 自 v0.2.0 起已内置还原，并在还原时打印一行 `note:`。
+你若要自己复算，请用同一个 `restore`。
+
+---
+
+## 复现本版新增的三组证据
+
+### A. 平台期（§3a）
+
+```bash
+# 同一个 seed，训三个长度（其余参数完全相同）
+python train.py --data data --out exp/L130 --seed 101 --max-steps 130 --cv-every 20
+python train.py --data data --out exp/L400 --seed 101 --max-steps 400 --cv-every 50
+python train.py --data data --out exp/L800 --seed 101 --max-steps 800 --cv-every 100
+```
+
+**读 `cv_trace` 时先看 `cv_every`**：`step k` 的含义是窗口 `[k-cv_every+1, k]`。
+**不同 `cv_every` 的两条 trace，`step` 编号相同不代表同一段**（见 `PITFALLS` 第 24 条）。
+
+预期：`1~20` 为 0.2427 → `21~40` 过冲 0.3286 → `41~60` 0.2800 → `61~80` 0.2754 → `81` 步起恒 0.2753。
+
+### B. 跨 seed 稳健性
+
+```bash
+for s in 101 102 103 104 105; do
+  python train.py --data data --out exp/seed$s --seed $s --max-steps 130
+done
+```
+
+把五张卡的 `expert_load` 两两算 `L1`（10 对）：预期落在 **0.2752 ~ 0.4736**，中位数 0.3620。
+
+### C. 累计口径公式
+
+```bash
+# 同一个 base ckpt，分两臂续训 96 步：
+#   一臂续训时清零统计（默认行为）
+#   一臂续训时累加上一程（去掉清零那行）
+```
+
+预测：`cum_expected = (n1*L_base + n2*L_session) / (n1+n2)`；
+实测与预测的 `L1` 应 **< 0.005**（本仓库实测 0.0003）。
+
+---
+
+## 判定一张卡是否自洽（零成本）
+
+任何「从零训练 + 有 `cv_trace` + 存累计口径」的卡，都可以自查：
+
+1. 由 `expert_load`（累计）反解区间窗口分布；
+2. 算该分布的 `cv`；
+3. 与 `cv_trace` 里对应窗口的 `cv` 比，差 < 1e-3 即自洽。
+
+> **注意：自洽只能说明「公式/统计口径」没问题，不能说明「训练本身没错」——后者要靠重跑对照。**
