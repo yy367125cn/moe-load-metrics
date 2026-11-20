@@ -1,11 +1,23 @@
 # moe-load-metrics
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24404735.svg)](https://doi.org/10.5281/zenodo.24404735)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24404734.svg)](https://doi.org/10.5281/zenodo.24404734)
 
 > Chinese version: [README.md](README.md)
 
-> **Cite this version (v0.2.0)**: DOI `10.5281/zenodo.24404735`; **all versions**: `10.5281/zenodo.24404734`.
-> Use the version DOI to cite this reproducibility snapshot; use the concept DOI to point at the project / latest version.
+> **Cite**: concept DOI `10.5281/zenodo.24404734` (always resolves to the latest version);
+> for the DOI of a specific reproducibility snapshot, take the version DOI from the
+> [Zenodo record](https://doi.org/10.5281/zenodo.24404734)
+> (v0.2.0 = `10.5281/zenodo.24404735`; v0.2.1 gets a new number on archiving).
+
+> **v0.2.1 (2026-11-21) — main changes:**
+>
+> 1. **Tool fix**: `check_pair.py` used to compute `L1` on the stored order for `sber` cards
+>    (without undoing `reorder_perm`), reporting 0.2493 as **0.1025** — the number already
+>    retracted in v0.1.5 — while still printing `PASS`. It now restores the permutation.
+> 2. **Reproduction**: `REPRODUCE` gains a section on undoing `reorder_perm` before comparing
+>    `L1`, plus how to reproduce the plateau / cross-seed / cumulative-formula results.
+> 3. `PITFALLS` grows to **25 entries** (new #25: verifying artifacts is not verifying tools).
+> 4. The DOI badge now uses the **concept DOI** (always the latest version).
 
 > **v0.2.0 (2026-11-21) — main changes:**
 >

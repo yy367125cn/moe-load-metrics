@@ -1,11 +1,21 @@
 # moe-load-metrics
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24404735.svg)](https://doi.org/10.5281/zenodo.24404735)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24404734.svg)](https://doi.org/10.5281/zenodo.24404734)
 
 > English version: [README.en.md](README.en.md)
 
-> **引用本版（v0.2.0）**：DOI `10.5281/zenodo.24404735`；**全部版本**见 `10.5281/zenodo.24404734`。
-> 想引用「可复现的这一份」用版本 DOI；想指向「这个项目 / 最新版」用概念 DOI。
+> **引用**：概念 DOI `10.5281/zenodo.24404734`（始终指向最新版）；
+> 想引用「可复现的某一版」请到 [Zenodo 记录页](https://doi.org/10.5281/zenodo.24404734) 取该版的版本 DOI
+> （v0.2.0 = `10.5281/zenodo.24404735`；v0.2.1 见归档后生成的新号）。
+
+> **v0.2.1（2026-11-21）主要变更：**
+>
+> 1. **修工具**：`check_pair.py` 之前对 `sber` 卡片按存储顺序算 `L1`（未还原 `reorder_perm`），
+>    会把 0.2493 算成 **0.1025**（即 v0.1.5 已撤回的那个数），且仍判 `PASS`。现已内置还原。
+> 2. **补复现**：`REPRODUCE` 新增「跨卡比 `L1` 前必须还原 `reorder_perm`」与
+>    「如何复现平台期 / 跨 seed / 累计口径公式」。
+> 3. `PITFALLS` 扩到 **25 条**（新增第 25 条：校验了产物 ≠ 校验了工具）。
+> 4. DOI 徽章改为**概念 DOI**（始终指向最新版）。
 
 > **v0.2.0（2026-11-21）主要变更：**
 >

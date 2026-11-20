@@ -546,3 +546,37 @@ coexist at once**, and the card carries only the single `cv_every` field as a hi
 
 > **"All metrics green but the thing is broken" is not a bug; it is a class of bug.
 > It shows up at the analysis layer, the implementation layer, and the platform layer — the only general defence is "read it back and verify".**
+
+---
+
+### 25. Verifying the artifacts is not the same as verifying the tools
+
+Before releasing v0.2.0 we checked: `zip` size, all 118 `MANIFEST` hashes, the audit script
+reporting `errors: 0`, byte-identical regeneration of the three figures, and that the Chinese
+and English numbers agree. **All of it passed.**
+
+**But nobody did the one thing that mattered: run the tool shipped in the package against the
+data shipped in the package.**
+
+Result: `check_pair.py` computed `L1` **directly on the stored order** for `sber` cards
+(it did not undo `reorder_perm`), so it reported 0.2493 as **0.1025** — **the exact number we
+had retracted a week earlier.**
+
+```
+$ python check_pair.py --a card_rep5_rep1.json --b card_phase_pt130_a.json
+L1 : 0.1025      <- wrong (perm not restored)
+[PASS]           <- and it passes the check too
+```
+
+**Why this class is the hardest to catch**: it does not raise, crash, or produce anything
+suspicious. It quietly returns a plausible-looking wrong number — and that number even matched
+what our older documents said, so it looked like a successful reproduction.
+
+> **Rule: before releasing, run the packaged tool against the packaged data and compare the
+> output line by line with the numbers stated in the text.** Verifying artifacts only shows the
+> files are intact; it does not show the tools work.
+> More generally: **every claim that is cited needs a path that recomputes it from the published
+> artifacts themselves.**
+
+**Fix (adopted)**: `check_pair.py` now carries `restore(load, perm)` and prints a `note:` line
+when it restores; `REPRODUCE` gained a section on undoing `reorder_perm` before comparing `L1`.
