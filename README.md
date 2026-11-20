@@ -1,6 +1,11 @@
 # moe-load-metrics
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24404735.svg)](https://doi.org/10.5281/zenodo.24404735)
+
 > English version: [README.en.md](README.en.md)
+
+> **引用本版（v0.2.0）**：DOI `10.5281/zenodo.24404735`；**全部版本**见 `10.5281/zenodo.24404734`。
+> 想引用「可复现的这一份」用版本 DOI；想指向「这个项目 / 最新版」用概念 DOI。
 
 > **v0.2.0（2026-11-21）主要变更：**
 >

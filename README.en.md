@@ -1,6 +1,11 @@
 # moe-load-metrics
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24404735.svg)](https://doi.org/10.5281/zenodo.24404735)
+
 > Chinese version: [README.md](README.md)
+
+> **Cite this version (v0.2.0)**: DOI `10.5281/zenodo.24404735`; **all versions**: `10.5281/zenodo.24404734`.
+> Use the version DOI to cite this reproducibility snapshot; use the concept DOI to point at the project / latest version.
 
 > **v0.2.0 (2026-11-21) — main changes:**
 >
