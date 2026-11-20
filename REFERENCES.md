@@ -70,4 +70,5 @@ https://arxiv.org/abs/2609.19969
 ## 引用格式
 
     moe-load-metrics: MoE 专家负载指标的精度与适用范围
+    (English: MoE Expert-Load Metrics: A Precision Comparison of cv and L1)
     (2026-11-18)

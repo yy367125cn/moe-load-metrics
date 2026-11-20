@@ -54,7 +54,13 @@ def load_cards(card_dir):
         try:
             with open(p, "r", encoding="utf-8") as fh:
                 d = json.load(fh)
-            if isinstance(d, dict) and "expert_load" in d:
+            if not isinstance(d, dict):
+                print("[skip] %s: 不是 JSON 对象" % os.path.basename(p), file=sys.stderr)
+            elif "expert_load" not in d:
+                # 静默跳过会让人以为「目录里所有 json 都被读了」—— 显式报到 stderr
+                print("[skip] %s: 没有 expert_load 字段（不是 session card）"
+                      % os.path.basename(p), file=sys.stderr)
+            else:
                 out.append((os.path.basename(p), d))
         except Exception as e:
             print("[warn] 跳过 %s: %s" % (p, e), file=sys.stderr)
