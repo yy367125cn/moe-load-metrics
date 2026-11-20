@@ -9,9 +9,15 @@ The **code, experiment execution, data analysis and documentation** in this repo
 were produced with the assistance of AI systems.
 **Humans set direction, made key judgements, and gave final review.**
 All experimental data comes from **real hardware runs** — nothing is synthetic or interpolated.
-There were two later corrections, **both to the summary table**: a column's semantics
-(see `PITFALLS.md` item 8) and one mistyped step count (item 12).
-The raw session cards were never hand-edited.
+There were **four** later corrections:
+
+- **Summary table**: a column's semantics (see `PITFALLS.md` item 8) and one mistyped step count (item 12).
+- **Numbers in the body text** (2026-11-20): two already-published `L1` values were recomputed —
+  the intervention effect `0.0599 -> 0.1077`, and the ckpt-switch difference `0.1025 -> 0.2493`.
+  The cause was that the old values had been computed **without first undoing `reorder_perm`** (items 17 and 18).
+  **The direction of the conclusions is unchanged, and stronger.**
+
+**The raw session cards were never hand-edited.**
 Every claim is backed by an evidence chain traceable to raw session cards.
 
 
@@ -24,7 +30,7 @@ Every claim is backed by an evidence chain traceable to raw session cards.
 | Experiment execution | **AI** | run on real accelerators — no simulation, no interpolation |
 | Data analysis | **AI** | all computed by script, never by hand |
 | Documentation | **AI** | drafts written by AI, reviewed and edited by the human |
-| **Pre-release review** | **a separate AI instance** | independently audited for leakage, citation completeness and data accuracy |
+| **Pre-release review** | **a separate AI agent with its own context** | it does not see the main thread's conversation and audits files and recomputes independently; **but it is spawned by the main process, so it is not an external third party** |
 | **Final decision to publish** | **human** | — |
 
 ## Why this is acceptable
@@ -51,7 +57,10 @@ During this work the AI was **proven wrong more than ten times**, including:
 - **batch text replacement silently failing** twice while we believed the edits had landed → caught by independent review (item 10)
 
 **All of these are recorded in `PITFALLS.md`.**
-We publish them because **a narrative that never errs is more suspicious than a process that errs and checks itself.**
+`PITFALLS.md` now contains **24 items**, and **each item is a mistake that we (human or AI) actually made and that was caught** —
+the reader can count them directly, which is more reliable than any number we report about ourselves.
+
+**We publish them because a narrative that never errs is more suspicious than a process that errs and checks itself.**
 
 ## Data integrity
 

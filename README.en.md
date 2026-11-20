@@ -376,7 +376,7 @@ So this document does **not** claim that:
 ### 6.0 Source of the Method (Required Reading)
 
 The practice used here — "add a load-dependent bias to the router and push the load flat during training" —
-is **aux-loss-free load balancing**, from the **DeepSeek-V3 technical report** (arXiv:2412.19437)
+is **aux-loss-free load balancing**, from the **DeepSeek-V3 technical report [3]** (arXiv:2412.19437)
 https://arxiv.org/abs/2412.19437
 
 > See step 3 of REPRODUCE.md. **This document does not propose the method; it measures "which metric should be used to evaluate it".**
@@ -455,7 +455,8 @@ The code, experiment execution, analysis and writing in this repository were pro
 ### 9.2 Reference Verification
 
 The top of `REFERENCES.md` states the **scope of verification**: the titles and identifiers of all eight references were checked;
-for the five actually cited in the body ([1]–[5]), the wording of their conclusions was compared against their abstracts;
+for the five cited in the body (**[1]–[5]**, with [3] cited in §6.0 as the source of the method), the wording of their conclusions
+was compared against their abstracts;
 the three background references had only their identifiers and titles checked, and their conclusions are not used in the body.
 **Note**: the technical details of [4] V4 and [5] V4.1-Flash (sequence-wise balance loss, Sigmoid→Sqrt(Softplus)) are cited from their abstracts and have not been independently verified.
 

@@ -2,7 +2,8 @@
 
 > **Scope of verification (use this to judge how far to trust them)**:
 > - the **titles and arXiv identifiers** of all eight references were checked one by one, and all agree;
-> - the **wording of the conclusions** of **[1] [2] [3]**, as cited in the body, has been compared against their respective abstracts, with no deviation found;
+> - the **wording of the conclusions** of the five cited in the body (**[1]–[5]**, with [3] cited in §6.0 as the source of the
+>   method) have been compared against their respective abstracts, with no deviation found;
 > - **for the three background references (Switch / GShard / Mixtral) only the identifiers and titles were checked**, and their conclusions are not used in the body.
 >
 > If you find an inaccurate paraphrase, please open an issue — that is better than letting the error spread.
