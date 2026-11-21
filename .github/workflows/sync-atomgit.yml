@@ -1,0 +1,21 @@
+name: Sync to AtomGit
+
+on:
+  push:
+    branches: ["**"]
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Push branches & tags
+        run: |
+          git remote add atomgit "https://oauth2:${{ secrets.ATOMGIT_TOKEN }}@atomgit.com/YY-yang/moe-load-metrics.git"
+          git push atomgit --all --force
+          git push atomgit --tags --force
