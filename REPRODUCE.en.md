@@ -3,8 +3,8 @@
 ## Three Hard Conditions (All Mandatory)
 
 1. **The same ckpt file** — not "the same seed", not "the same configuration".
-   We measured: retraining once with the same seed / same data / same number of steps gives a routing state whose L1 distance from the previous one is **0.10**,
-   the same order as the intervention effect we want to measure (0.06), or larger.
+   We measured: retraining once with the same seed / same data / same number of steps gives a routing state whose L1 distance from the previous one is **0.25**,
+   the same order as the intervention effect we want to measure (0.11), or larger.
 2. **The same window length** — not "roughly the same".
    A 96-step run and an 85-step run **cannot be compared in the same coordinate system**.
 3. **The intervention magnitude is computed on the fly from the current baseline's own load** — not reused from another baseline's value.
@@ -81,9 +81,9 @@ dist  = l1(load_A, load_B)  # share distance, 0~2
 
 | Symptom | Meaning |
 |---|---|
-| `l1` about 0.06, `cv` differs by only 1.5% | **matches our observation**: cv barely sees it, L1 does |
+| `l1` about 0.11, `cv` differs by only 1.5% | **matches our observation**: cv barely sees it, L1 does |
 | `l1` about 1e-4 | the intervention did not take effect (check whether the bias really got written into the model) |
-| `l1` about 0.10 but `cv` also differs a lot | check whether the two groups' ckpts are the same file |
+| `l1` about 0.25 but `cv` also differs a lot | check whether the two groups' ckpts are the same file |
 
 ---
 

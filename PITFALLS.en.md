@@ -1,5 +1,10 @@
 # The Pitfalls We Ran Into
 
+> **Added 2026-11-21: these leaks were only cleared in v0.2.1** — `0.10` in the body of PITFALLS entry 3 and
+> `0.10 / 0.06` in the first hard condition of `REPRODUCE` were still present in the v0.2.0 release.
+> **This is the third recurrence of the same trap in this repository.** It shows that "grep once afterwards" is not a
+> reliable habit; it has to be a script that scans every number before a release.
+
 > Why this section exists: **every item below once made one of our conclusions wrong**,
 > and each has the same signature — **every number is individually correct, but together they are false.**
 
@@ -30,7 +35,7 @@ Measured: with the same configuration, running 214 steps vs 215 steps gives a `c
 ### 3. Treating a single result as a distribution
 
 We once saw cv differ by 18% under the same configuration and briefly concluded "this metric is unusable";
-6 measurements later showed that the fluctuation is indeed large, but that **switching to another ckpt costs 0.10 (L1)**, which is the larger noise source.
+6 measurements later showed that the fluctuation is indeed large, but that **switching to another ckpt costs 0.25 (L1)**, which is the larger noise source.
 
 **⇒ Measure the noise ruler before fixing a conclusion.**
 
