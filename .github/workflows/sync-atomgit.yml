@@ -16,6 +16,6 @@ jobs:
           fetch-depth: 0
       - name: Push branches & tags
         run: |
-          git remote add atomgit "https://oauth2:${{ secrets.ATOMGIT_TOKEN }}@atomgit.com/YY-yang/moe-load-metrics.git"
+          git remote add atomgit "https://YY-yang:${{ secrets.ATOMGIT_TOKEN }}@atomgit.com/YY-yang/moe-load-metrics.git"
           git push atomgit --all --force
           git push atomgit --tags --force
